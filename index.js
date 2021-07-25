@@ -54,19 +54,48 @@ app.delete("/api/persons/:id", (req, res) => {
 	const id = Number(req.params.id);
 
 	persons = persons.filter((person) => person.id !== id);
-	console.log(persons);
 
 	res.status(204).end();
 });
 
 app.put("/api/persons", (req, res) => {
+	const body = req.body;
+
+	if (!body.name) {
+		res
+			.status(400)
+			.json({
+				error: "name must be included",
+			})
+			.end();
+		return;
+	}
+
+	if (!body.number) {
+		res
+			.status(400)
+			.json({
+				error: "number must be included",
+			})
+			.end();
+		return;
+	}
+
+	if (persons.find((person) => person.name === body.name)) {
+		res
+			.status(400)
+			.json({
+				error: "name must be unique",
+			})
+			.end();
+		return;
+	}
+
 	const id = Math.floor(Math.random() * 9999999);
 
 	const newPerson = { ...req.body, id };
 
 	persons = [...persons, newPerson];
-
-	console.log(persons);
 
 	res.status(201).json(newPerson).end();
 });
