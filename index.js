@@ -2,7 +2,7 @@ const express = require("express");
 
 const app = express();
 
-const persons = [
+let persons = [
 	{
 		name: "Arto Hellas",
 		number: "040-123456",
@@ -25,15 +25,36 @@ const persons = [
 	},
 ];
 
-app.get("/api/persons", (req, res) => {
-	res.json(persons);
-});
-
 app.get("/info", (req, res) => {
 	res.send(`
         <h3>Phonebook has info for ${persons.length} people</h3>
         <h3>${new Date()}</h3>
     `);
+});
+
+app.get("/api/persons", (req, res) => {
+	res.json(persons);
+});
+
+app.get("/api/persons/:id", (req, res) => {
+	const id = Number(req.params.id);
+	const selectedPerson = persons.find((person) => person.id === id);
+
+	if (selectedPerson) {
+		res.json(selectedPerson);
+		return;
+	}
+
+	res.status(404).end();
+});
+
+app.delete("/api/persons/:id", (req, res) => {
+	const id = Number(req.params.id);
+
+	persons = persons.filter((person) => person.id !== id);
+	console.log(persons);
+
+	res.status(204).end();
 });
 
 const PORT = 3001;
