@@ -58,7 +58,7 @@ app.delete("/api/persons/:id", (req, res) => {
 	res.status(204).end();
 });
 
-app.put("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res) => {
 	const body = req.body;
 
 	if (!body.name) {
