@@ -99,23 +99,27 @@ app.post("/api/persons", (req, res) => {
 		return;
 	}
 
-	if (persons.find((person) => person.name === body.name)) {
-		res
-			.status(400)
-			.json({
-				error: "name must be unique",
-			})
-			.end();
-		return;
-	}
+	Person.findOne({ name: body.name })
+		.exec()
+		.then((result) => {
+			if (result) {
+				res
+					.status(400)
+					.json({
+						error: "name must be unique",
+					})
+					.end();
+			}
+		});
 
-	const id = Math.floor(Math.random() * 9999999);
+	const newPerson = new Person({
+		name: body.name,
+		number: body.number,
+	});
 
-	const newPerson = { ...req.body, id };
-
-	persons = [...persons, newPerson];
-
-	res.status(201).json(newPerson).end();
+	newPerson.save().then((result) => {
+		res.status(201).json(result).end();
+	});
 });
 
 const PORT = process.env.PORT;
