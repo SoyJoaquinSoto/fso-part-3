@@ -110,53 +110,15 @@ app.put("/api/persons/:id", (req, res, next) => {
 app.post("/api/persons", (req, res, next) => {
 	const body = req.body;
 
-	if (!body.name) {
-		res
-			.status(400)
-			.json({
-				error: "name must be included",
-			})
-			.end();
-		return;
-	}
+	const newPerson = new Person({
+		name: body.name,
+		number: body.number,
+	});
 
-	if (!body.number) {
-		res
-			.status(400)
-			.json({
-				error: "number must be included",
-			})
-			.end();
-		return;
-	}
-
-	Person.findOne({ name: body.name })
-		.exec()
+	newPerson
+		.save()
 		.then((result) => {
-			if (result) {
-				res
-					.status(400)
-					.json({
-						error: "name must be unique",
-					})
-					.end();
-
-				return;
-			}
-
-			const newPerson = new Person({
-				name: body.name,
-				number: body.number,
-			});
-
-			newPerson
-				.save()
-				.then((result) => {
-					res.status(201).json(result).end();
-				})
-				.catch((error) => {
-					next(error);
-				});
+			res.status(201).json(result).end();
 		})
 		.catch((error) => {
 			next(error);
@@ -166,11 +128,14 @@ app.post("/api/persons", (req, res, next) => {
 const errorHandler = (error, req, res, next) => {
 	console.error(error.message);
 
-	if (error.name === "CastError") {
-		return res.status(400).send({ error: "malformatted id" });
+	switch (error.name) {
+		case "CastError":
+			return res.status(400).send({ error: "malformatted id" });
+		case "ValidationError":
+			return res.status(400).json({ error: error.message });
+		default:
+			next(error);
 	}
-
-	next(error);
 };
 
 app.use(errorHandler);
