@@ -84,6 +84,18 @@ app.delete("/api/persons/:id", (req, res) => {
 	res.status(204).end();
 });
 
+app.put("/api/persons/:id", (req, res) => {
+	const newNumber = { number: req.body.number };
+
+	Person.findByIdAndUpdate(req.params.id, newNumber, { new: true })
+		.then((result) => {
+			res.json(result);
+		})
+		.catch((error) => {
+			next(error);
+		});
+});
+
 app.post("/api/persons", (req, res) => {
 	const body = req.body;
 
