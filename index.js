@@ -93,7 +93,10 @@ app.delete("/api/persons/:id", (req, res, next) => {
 app.put("/api/persons/:id", (req, res, next) => {
 	const newNumber = { number: req.body.number };
 
-	Person.findByIdAndUpdate(req.params.id, newNumber, { new: true })
+	Person.findByIdAndUpdate(req.params.id, newNumber, {
+		new: true,
+		runValidators: true,
+	})
 		.then((result) => {
 			if (!result) {
 				res.status(404).end();
