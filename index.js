@@ -50,7 +50,7 @@ app.get("/info", (req, res) => {
     `);
 });
 
-app.get("/api/persons", (req, res) => {
+app.get("/api/persons", (req, res, next) => {
 	Person.find({})
 		.then((result) => {
 			res.json(result);
@@ -60,21 +60,27 @@ app.get("/api/persons", (req, res) => {
 		});
 });
 
-app.get("/api/persons/:id", (req, res) => {
-	const id = Number(req.params.id);
-	const selectedPerson = persons.find((person) => person.id === id);
+app.get("/api/persons/:id", (req, res, next) => {
+	Person.findById(req.params.id)
+		.then((result) => {
+			if (!result) {
+				res.status(404).end();
+				return;
+			}
 
-	if (selectedPerson) {
-		res.json(selectedPerson);
-		return;
-	}
-
-	res.status(404).end();
+			res.json(result);
+		})
+		.catch((error) => next(error));
 });
 
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
 	Person.findByIdAndRemove(req.params.id)
 		.then((result) => {
+			if (!result) {
+				res.status(404).end();
+				return;
+			}
+
 			res.status(204).end();
 		})
 		.catch((error) => {
@@ -84,11 +90,16 @@ app.delete("/api/persons/:id", (req, res) => {
 	res.status(204).end();
 });
 
-app.put("/api/persons/:id", (req, res) => {
+app.put("/api/persons/:id", (req, res, next) => {
 	const newNumber = { number: req.body.number };
 
 	Person.findByIdAndUpdate(req.params.id, newNumber, { new: true })
 		.then((result) => {
+			if (!result) {
+				res.status(404).end();
+				return;
+			}
+
 			res.json(result);
 		})
 		.catch((error) => {
@@ -96,7 +107,7 @@ app.put("/api/persons/:id", (req, res) => {
 		});
 });
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
 	const body = req.body;
 
 	if (!body.name) {
