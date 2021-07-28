@@ -12,7 +12,7 @@ app.use(cors());
 
 app.use(express.json());
 
-morgan.token("action", (req, res) => JSON.stringify(req.body));
+morgan.token("action", (req) => JSON.stringify(req.body));
 
 app.use(
 	morgan(
